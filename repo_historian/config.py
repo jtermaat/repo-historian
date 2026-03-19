@@ -19,12 +19,12 @@ MAX_NARRATIVE_WORDS: int = 2500
 
 # LLM — uncomment the model you want to use (one at a time)
 # Anthropic
-MODEL_NAME: str = "claude-sonnet-4-6"
+# MODEL_NAME: str = "claude-sonnet-4-6"
 # MODEL_NAME: str = "claude-opus-4-6"
 # MODEL_NAME: str = "claude-haiku-4-5"
 # OpenAI
 # MODEL_NAME: str = "gpt-5.4"
-# MODEL_NAME: str = "gpt-5.4-mini"
+MODEL_NAME: str = "gpt-5.4-mini"
 # MODEL_NAME: str = "gpt-5.4-nano"
 # Gemini
 # MODEL_NAME: str = "gemini-3.1-pro-preview"
