@@ -2,7 +2,6 @@
 
 # Triage
 DEFAULT_TRIAGE_BATCH_SIZE: int = 80
-DEFAULT_TRIAGE_TOP_K: int = 40
 
 # Analyze commit — diff caps
 MAX_FILES_PER_COMMIT: int = 15
@@ -30,6 +29,7 @@ MODEL_NAME: str = "claude-sonnet-4-6"
 # Gemini
 # MODEL_NAME: str = "gemini-3.1-pro-preview"
 # MODEL_NAME: str = "gemini-3.1-flash-lite-preview"
+
 
 PROVIDER_API_KEY_ENV: dict[str, str] = {
     "anthropic": "ANTHROPIC_API_KEY",

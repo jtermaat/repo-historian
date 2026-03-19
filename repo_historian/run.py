@@ -1,4 +1,4 @@
-"""CLI entry point: python -m repo_historian.run <url> [--top-k N] [--batch-size N]."""
+"""CLI entry point: python -m repo_historian.run <url> [--batch-size N]."""
 
 from __future__ import annotations
 
@@ -14,7 +14,6 @@ from dotenv import load_dotenv
 
 from repo_historian.config import (
     DEFAULT_TRIAGE_BATCH_SIZE,
-    DEFAULT_TRIAGE_TOP_K,
     MODEL_NAME,
     PROVIDER_API_KEY_ENV,
     detect_provider,
@@ -36,7 +35,6 @@ def main(argv: list[str] | None = None) -> None:
 
     parser = argparse.ArgumentParser(description="Repo Historian — narrative Git history")
     parser.add_argument("url", help="GitHub repository URL")
-    parser.add_argument("--top-k", type=int, default=DEFAULT_TRIAGE_TOP_K)
     parser.add_argument("--batch-size", type=int, default=DEFAULT_TRIAGE_BATCH_SIZE)
     args = parser.parse_args(argv)
 
@@ -58,17 +56,12 @@ def main(argv: list[str] | None = None) -> None:
 
     initial_state = {
         "repo_url": args.url,
-        "triage_config": TriageConfig(top_k=args.top_k, batch_size=args.batch_size),
+        "triage_config": TriageConfig(batch_size=args.batch_size),
     }
 
-    print(
-        f"Processing {args.url} (model={MODEL_NAME}, top-k={args.top_k},"
-        f" batch-size={args.batch_size})..."
-    )
+    print(f"Processing {args.url} (model={MODEL_NAME}, batch-size={args.batch_size})...")
 
-    result = graph.invoke(
-        initial_state, config={"configurable": {"github_token": github_token}}
-    )
+    result = graph.invoke(initial_state, config={"configurable": {"github_token": github_token}})
 
     # Write outputs
     slug = _slugify(args.url)

@@ -30,7 +30,7 @@ class CommitRecord:
 @dataclass
 class TriageScore:
     sha: str
-    score: int
+    focus: bool
     reason: str
 
 
@@ -60,7 +60,6 @@ class Era:
 
 @dataclass
 class TriageConfig:
-    top_k: int
     batch_size: int
 
 
