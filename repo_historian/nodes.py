@@ -12,6 +12,7 @@ from langchain_core.runnables import RunnableConfig
 from pydantic import BaseModel, Field
 
 from repo_historian.config import (
+    LLM_TEMPERATURE,
     MAX_DIFF_CHARS_TOTAL,
     MAX_ERAS,
     MAX_FILES_PER_COMMIT,
@@ -54,15 +55,15 @@ def _build_llm() -> BaseChatModel:
     if provider == "anthropic":
         from langchain_anthropic import ChatAnthropic
 
-        return ChatAnthropic(model=MODEL_NAME)
+        return ChatAnthropic(model=MODEL_NAME, temperature=LLM_TEMPERATURE)
     elif provider == "openai":
         from langchain_openai import ChatOpenAI
 
-        return ChatOpenAI(model=MODEL_NAME)
+        return ChatOpenAI(model=MODEL_NAME, temperature=LLM_TEMPERATURE)
     elif provider == "google":
         from langchain_google_genai import ChatGoogleGenerativeAI
 
-        return ChatGoogleGenerativeAI(model=MODEL_NAME)
+        return ChatGoogleGenerativeAI(model=MODEL_NAME, temperature=LLM_TEMPERATURE)
     raise ValueError(f"Unsupported provider: {provider}")
 
 

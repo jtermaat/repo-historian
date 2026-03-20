@@ -30,6 +30,8 @@ MODEL_NAME: str = "gpt-5.4-mini"
 # MODEL_NAME: str = "gemini-3.1-pro-preview"
 # MODEL_NAME: str = "gemini-3.1-flash-lite-preview"
 
+LLM_TEMPERATURE: float = 0
+
 
 PROVIDER_API_KEY_ENV: dict[str, str] = {
     "anthropic": "ANTHROPIC_API_KEY",
