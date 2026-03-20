@@ -1,0 +1,39 @@
+"""Shared helpers for graph nodes."""
+
+from __future__ import annotations
+
+import re
+
+from langchain_core.language_models import BaseChatModel
+from langchain_core.runnables import RunnableConfig
+
+from repo_historian.config import LLM_TEMPERATURE, MODEL_NAME, detect_provider
+
+
+def parse_repo_full_name(url: str) -> str:
+    """Extract 'owner/repo' from a GitHub URL."""
+    match = re.match(r"https?://github\.com/([^/]+/[^/]+?)(?:\.git)?/?$", url)
+    if not match:
+        raise ValueError(f"Invalid GitHub repo URL: {url}")
+    return match.group(1)
+
+
+def get_github_token(config: RunnableConfig) -> str:
+    return config["configurable"]["github_token"]
+
+
+def build_llm() -> BaseChatModel:
+    provider = detect_provider(MODEL_NAME)
+    if provider == "anthropic":
+        from langchain_anthropic import ChatAnthropic
+
+        return ChatAnthropic(model=MODEL_NAME, temperature=LLM_TEMPERATURE)
+    elif provider == "openai":
+        from langchain_openai import ChatOpenAI
+
+        return ChatOpenAI(model=MODEL_NAME, temperature=LLM_TEMPERATURE)
+    elif provider == "google":
+        from langchain_google_genai import ChatGoogleGenerativeAI
+
+        return ChatGoogleGenerativeAI(model=MODEL_NAME, temperature=LLM_TEMPERATURE)
+    raise ValueError(f"Unsupported provider: {provider}")
