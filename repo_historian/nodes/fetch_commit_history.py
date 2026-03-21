@@ -6,11 +6,13 @@ from typing import Any
 
 from github import Github
 from langchain_core.runnables import RunnableConfig
+from langsmith import traceable
 
 from repo_historian.nodes._helpers import get_github_token
 from repo_historian.state import CommitRecord, GraphState
 
 
+@traceable(run_type="tool", name="fetch_commit_history")
 def fetch_commit_history(state: GraphState, config: RunnableConfig) -> dict[str, Any]:
     g = Github(get_github_token(config))
     full_name = state["repo_metadata"].full_name

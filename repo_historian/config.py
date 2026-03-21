@@ -1,5 +1,7 @@
 """Central configuration — every magic number lives here."""
 
+VERSION: str = "0.1.0"
+
 # Triage
 DEFAULT_TRIAGE_BATCH_SIZE: int = 80
 

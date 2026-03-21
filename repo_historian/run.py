@@ -16,6 +16,7 @@ from repo_historian.config import (
     DEFAULT_TRIAGE_BATCH_SIZE,
     MODEL_NAME,
     PROVIDER_API_KEY_ENV,
+    VERSION,
     detect_provider,
 )
 from repo_historian.graph import build_graph
@@ -61,10 +62,24 @@ def main(argv: list[str] | None = None) -> None:
 
     print(f"Processing {args.url} (model={MODEL_NAME}, batch-size={args.batch_size})...")
 
-    result = graph.invoke(initial_state, config={"configurable": {"github_token": github_token}})
+    slug = _slugify(args.url)
+    run_config = {
+        "run_name": f"repo-historian:{slug}",
+        "tags": ["repo-historian", provider],
+        "metadata": {
+            "repo_url": args.url,
+            "model_name": MODEL_NAME,
+            "batch_size": args.batch_size,
+            "app_version": VERSION,
+        },
+        "configurable": {
+            "github_token": github_token,
+        },
+    }
+
+    result = graph.invoke(initial_state, config=run_config)
 
     # Write outputs
-    slug = _slugify(args.url)
     out_dir = Path("output")
     out_dir.mkdir(exist_ok=True)
 

@@ -9,6 +9,7 @@ dependencies = [
     "langchain-anthropic>=1.0",
     "langchain-openai>=1.0",
     "langchain-google-genai>=4.0",
+    "langsmith>=0.3",
     "langgraph>=1.0",
     "pydantic>=2.0",
     "python-dotenv>=1.0",
