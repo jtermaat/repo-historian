@@ -7,7 +7,13 @@ import re
 from langchain_core.language_models import BaseChatModel
 from langchain_core.runnables import RunnableConfig
 
-from repo_historian.config import LLM_TEMPERATURE, MODEL_NAME, detect_provider
+from repo_historian.config import (
+    LLM_TEMPERATURE,
+    MAX_COMPLETION_TOKENS,
+    MODEL_NAME,
+    REASONING_EFFORT,
+    detect_provider,
+)
 
 
 def parse_repo_full_name(url: str) -> str:
@@ -27,13 +33,26 @@ def build_llm() -> BaseChatModel:
     if provider == "anthropic":
         from langchain_anthropic import ChatAnthropic
 
-        return ChatAnthropic(model=MODEL_NAME, temperature=LLM_TEMPERATURE)
+        return ChatAnthropic(
+            model=MODEL_NAME,
+            temperature=LLM_TEMPERATURE,
+            max_tokens=MAX_COMPLETION_TOKENS,
+        )
     elif provider == "openai":
         from langchain_openai import ChatOpenAI
 
-        return ChatOpenAI(model=MODEL_NAME, temperature=LLM_TEMPERATURE)
+        return ChatOpenAI(
+            model=MODEL_NAME,
+            temperature=LLM_TEMPERATURE,
+            max_tokens=MAX_COMPLETION_TOKENS,
+            reasoning_effort=REASONING_EFFORT,
+        )
     elif provider == "google":
         from langchain_google_genai import ChatGoogleGenerativeAI
 
-        return ChatGoogleGenerativeAI(model=MODEL_NAME, temperature=LLM_TEMPERATURE)
+        return ChatGoogleGenerativeAI(
+            model=MODEL_NAME,
+            temperature=LLM_TEMPERATURE,
+            max_output_tokens=MAX_COMPLETION_TOKENS,
+        )
     raise ValueError(f"Unsupported provider: {provider}")

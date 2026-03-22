@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from langgraph.constants import Send
 from langgraph.graph import END, START, StateGraph
-from langgraph.types import RetryPolicy
+from langgraph.types import RetryPolicy, default_retry_on
 
 from repo_historian.nodes import (
     analyze_diff,
@@ -20,6 +20,15 @@ from repo_historian.state import (
     DiffAnalysisInput,
     GraphState,
 )
+
+
+def _retry_on(exc: Exception) -> bool:
+    """Don't retry length-limit errors — the same prompt will fail again."""
+    from openai import LengthFinishReasonError
+
+    if isinstance(exc, LengthFinishReasonError):
+        return False
+    return default_retry_on(exc)
 
 
 def _fan_out_analyses(state: GraphState) -> list[Send]:
@@ -61,14 +70,15 @@ def _fan_out_analyses(state: GraphState) -> list[Send]:
 def build_graph() -> StateGraph:
     """Build and compile the Repo Historian graph."""
     graph = StateGraph(GraphState)
+    retry = RetryPolicy(retry_on=_retry_on)
 
-    graph.add_node("fetch_repo_metadata", fetch_repo_metadata, retry=RetryPolicy())
-    graph.add_node("fetch_commit_history", fetch_commit_history, retry=RetryPolicy())
-    graph.add_node("triage_commits", triage_commits, retry=RetryPolicy())
-    graph.add_node("analyze_diff", analyze_diff, retry=RetryPolicy())
-    graph.add_node("cluster_into_eras", cluster_into_eras, retry=RetryPolicy())
+    graph.add_node("fetch_repo_metadata", fetch_repo_metadata, retry=retry)
+    graph.add_node("fetch_commit_history", fetch_commit_history, retry=retry)
+    graph.add_node("triage_commits", triage_commits, retry=retry)
+    graph.add_node("analyze_diff", analyze_diff, retry=retry)
+    graph.add_node("cluster_into_eras", cluster_into_eras, retry=retry)
     graph.add_node("synthesize_outline", synthesize_outline)
-    graph.add_node("expand_to_narrative", expand_to_narrative, retry=RetryPolicy())
+    graph.add_node("expand_to_narrative", expand_to_narrative, retry=retry)
 
     graph.add_edge(START, "fetch_repo_metadata")
     graph.add_edge("fetch_repo_metadata", "fetch_commit_history")

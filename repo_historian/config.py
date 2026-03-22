@@ -34,6 +34,8 @@ MODEL_NAME: str = "gpt-5.4-mini"
 # MODEL_NAME: str = "gemini-3.1-flash-lite-preview"
 
 LLM_TEMPERATURE: float = 0
+MAX_COMPLETION_TOKENS: int = 16_384
+REASONING_EFFORT: str = "low"
 
 
 PROVIDER_API_KEY_ENV: dict[str, str] = {
