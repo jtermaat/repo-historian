@@ -9,6 +9,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.runnables import RunnableConfig
 from pydantic import BaseModel
 
+from repo_historian import logger
 from repo_historian.config import (
     MAX_DIFF_CHARS_TOTAL,
     MAX_FILES_PER_DIFF,
@@ -27,6 +28,9 @@ class _AnalysisOutput(BaseModel):
 
 def analyze_diff(state: DiffAnalysisInput, config: RunnableConfig) -> dict[str, Any]:
     """Analyze the diff between two commits — called via Send() fan-out."""
+    logger.info(
+        "Analyzing %s..%s: %s", state["from_sha"][:8], state["to_sha"][:8], state.get("label", "")
+    )
     g = Github(get_github_token(config))
     repo = g.get_repo(state["repo_full_name"])
     comparison = repo.compare(state["from_sha"], state["to_sha"])

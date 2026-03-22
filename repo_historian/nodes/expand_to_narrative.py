@@ -7,12 +7,14 @@ from typing import Any
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.runnables import RunnableConfig
 
+from repo_historian import logger
 from repo_historian.config import MAX_NARRATIVE_WORDS, MIN_NARRATIVE_WORDS
 from repo_historian.nodes._helpers import build_llm
 from repo_historian.state import DiffAnalysis, GraphState
 
 
 def expand_to_narrative(state: GraphState, config: RunnableConfig) -> dict[str, Any]:
+    logger.info("Generating final narrative")
     meta = state["repo_metadata"]
     eras = state["eras"]
     analyses_by_key: dict[str, DiffAnalysis] = {a.pair_key: a for a in state["diff_analyses"]}

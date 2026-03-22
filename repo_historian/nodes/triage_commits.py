@@ -8,6 +8,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.runnables import RunnableConfig
 from pydantic import BaseModel
 
+from repo_historian import logger
 from repo_historian.config import MAX_INFLECTION_POINTS, MIN_INFLECTION_POINTS
 from repo_historian.nodes._helpers import build_llm
 from repo_historian.state import DiffPair, GraphState, InflectionPoint
@@ -27,6 +28,7 @@ def triage_commits(state: GraphState, config: RunnableConfig) -> dict[str, Any]:
     triage_cfg = state["triage_config"]
     batch_size = triage_cfg.batch_size
 
+    logger.info("Identifying inflection points across %d commits", len(commits))
     if len(commits) <= 1:
         print("Only one commit found; nothing to analyze.")
         return {"diff_pairs": []}

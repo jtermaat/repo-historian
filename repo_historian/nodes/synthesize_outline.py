@@ -6,12 +6,14 @@ from typing import Any
 
 from langchain_core.runnables import RunnableConfig
 
+from repo_historian import logger
 from repo_historian.state import DiffAnalysis, GraphState
 
 
 def synthesize_outline(state: GraphState, config: RunnableConfig) -> dict[str, Any]:
     meta = state["repo_metadata"]
     eras = state["eras"]
+    logger.info("Building outline across %d eras", len(eras))
     analyses_by_key: dict[str, DiffAnalysis] = {a.pair_key: a for a in state["diff_analyses"]}
 
     lines: list[str] = []

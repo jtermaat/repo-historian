@@ -8,6 +8,7 @@ from github import Github
 from langchain_core.runnables import RunnableConfig
 from langsmith import traceable
 
+from repo_historian import logger
 from repo_historian.nodes._helpers import get_github_token
 from repo_historian.state import CommitRecord, GraphState
 
@@ -38,4 +39,5 @@ def fetch_commit_history(state: GraphState, config: RunnableConfig) -> dict[str,
 
     # Chronological (oldest first)
     records.reverse()
+    logger.info("Found %d commits, %d tagged", len(records), len(tag_map))
     return {"all_commits": records}

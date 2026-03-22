@@ -8,6 +8,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.runnables import RunnableConfig
 from pydantic import BaseModel, Field
 
+from repo_historian import logger
 from repo_historian.config import MAX_ERAS, MIN_ERAS
 from repo_historian.nodes._helpers import build_llm
 from repo_historian.state import Era, GraphState
@@ -27,6 +28,7 @@ class _ErasResponse(BaseModel):
 
 def cluster_into_eras(state: GraphState, config: RunnableConfig) -> dict[str, Any]:
     analyses = state["diff_analyses"]
+    logger.info("Grouping %d analyses into thematic eras", len(analyses))
     # Sort chronologically by start date
     analyses_sorted = sorted(analyses, key=lambda a: a.start_date)
 
