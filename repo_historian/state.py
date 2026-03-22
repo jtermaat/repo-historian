@@ -28,6 +28,12 @@ class CommitRecord:
 
 
 @dataclass
+class InflectionPoint:
+    sha: str
+    label: str
+
+
+@dataclass
 class DiffPair:
     from_sha: str
     to_sha: str
@@ -79,6 +85,7 @@ class DiffAnalysisInput(TypedDict):
     from_commit: CommitRecord
     to_commit: CommitRecord
     commits_in_range: list[CommitRecord]
+    label: str
 
 
 # --- LangGraph top-level state ---

@@ -51,6 +51,7 @@ def _fan_out_analyses(state: GraphState) -> list[Send]:
             "from_commit": from_commit,
             "to_commit": to_commit,
             "commits_in_range": commits_in_range,
+            "label": pair.label,
         }
         sends.append(Send("analyze_diff", inp))
 

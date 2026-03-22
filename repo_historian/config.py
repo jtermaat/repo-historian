@@ -4,6 +4,8 @@ VERSION: str = "0.1.0"
 
 # Triage
 DEFAULT_TRIAGE_BATCH_SIZE: int = 80
+MIN_INFLECTION_POINTS: int = 3
+MAX_INFLECTION_POINTS: int = 12
 
 # Analyze diff — caps
 MAX_FILES_PER_DIFF: int = 15
