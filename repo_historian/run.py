@@ -93,7 +93,7 @@ def main(argv: list[str] | None = None) -> None:
     # Serialize raw data
     raw_data = {
         "repo_metadata": asdict(result["repo_metadata"]),
-        "commit_analyses": [asdict(a) for a in result["commit_analyses"]],
+        "diff_analyses": [asdict(a) for a in result["diff_analyses"]],
         "eras": [asdict(e) for e in result["eras"]],
     }
     raw_path.write_text(json.dumps(raw_data, indent=2, default=str), encoding="utf-8")

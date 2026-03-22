@@ -5,11 +5,10 @@ VERSION: str = "0.1.0"
 # Triage
 DEFAULT_TRIAGE_BATCH_SIZE: int = 80
 
-# Analyze commit — diff caps
-MAX_FILES_PER_COMMIT: int = 15
+# Analyze diff — caps
+MAX_FILES_PER_DIFF: int = 15
 MAX_PATCH_CHARS_PER_FILE: int = 2500
 MAX_DIFF_CHARS_TOTAL: int = 14000
-CONTEXT_WINDOW_COMMITS: int = 3
 
 # Era clustering
 MIN_ERAS: int = 3

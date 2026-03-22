@@ -28,24 +28,30 @@ class CommitRecord:
 
 
 @dataclass
-class TriageScore:
-    sha: str
-    focus: bool
-    reason: str
+class DiffPair:
+    from_sha: str
+    to_sha: str
+    label: str
 
 
 @dataclass
-class CommitAnalysis:
-    sha: str
+class DiffAnalysis:
+    pair_key: str  # "{from_sha}..{to_sha}"
+    from_sha: str
+    to_sha: str
     era_hint: str
     summary: str
     narrative_paragraph: str
     key_changes: list[str]
     additions: int = 0
     deletions: int = 0
-    date: str = ""
-    message: str = ""
-    author: str = ""
+    start_date: str = ""
+    end_date: str = ""
+    label: str = ""
+    commit_count: int = 0
+    from_message: str = ""
+    to_message: str = ""
+    authors: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
 
 
@@ -55,7 +61,7 @@ class Era:
     start_date: str
     end_date: str
     description: str
-    commit_shas: list[str]
+    diff_pair_keys: list[str]
 
 
 @dataclass
@@ -63,14 +69,16 @@ class TriageConfig:
     batch_size: int
 
 
-# --- Substate for analyze_commit fan-out via Send() ---
+# --- Substate for analyze_diff fan-out via Send() ---
 
 
-class CommitAnalysisInput(TypedDict):
-    sha: str
+class DiffAnalysisInput(TypedDict):
+    from_sha: str
+    to_sha: str
     repo_full_name: str
-    commit_record: CommitRecord
-    context_commits: list[CommitRecord]
+    from_commit: CommitRecord
+    to_commit: CommitRecord
+    commits_in_range: list[CommitRecord]
 
 
 # --- LangGraph top-level state ---
@@ -81,8 +89,8 @@ class GraphState(TypedDict):
     triage_config: TriageConfig
     repo_metadata: RepoMetadata
     all_commits: list[CommitRecord]
-    significant_commit_shas: list[str]
-    commit_analyses: Annotated[list[CommitAnalysis], operator.add]
+    diff_pairs: list[DiffPair]
+    diff_analyses: Annotated[list[DiffAnalysis], operator.add]
     eras: list[Era]
     outline: str
     narrative: str
