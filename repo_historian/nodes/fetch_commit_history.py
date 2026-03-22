@@ -24,6 +24,7 @@ def fetch_commit_history(state: GraphState, config: RunnableConfig) -> dict[str,
     for tag in repo.get_tags():
         tag_map.setdefault(tag.commit.sha, []).append(tag.name)
 
+    print(f"Fetching commit history for {full_name}...")
     commits_page = repo.get_commits()
     records: list[CommitRecord] = []
     for c in commits_page:
