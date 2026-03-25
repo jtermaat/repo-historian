@@ -12,6 +12,7 @@ from repo_historian.nodes import (
     expand_to_narrative,
     fetch_commit_history,
     fetch_repo_metadata,
+    summarize_analyses,
     synthesize_outline,
     triage_commits,
 )
@@ -76,6 +77,7 @@ def build_graph() -> StateGraph:
     graph.add_node("fetch_commit_history", fetch_commit_history, retry=retry)
     graph.add_node("triage_commits", triage_commits, retry=retry)
     graph.add_node("analyze_diff", analyze_diff, retry=retry)
+    graph.add_node("summarize_analyses", summarize_analyses, retry=retry)
     graph.add_node("cluster_into_eras", cluster_into_eras, retry=retry)
     graph.add_node("synthesize_outline", synthesize_outline)
     graph.add_node("expand_to_narrative", expand_to_narrative, retry=retry)
@@ -84,7 +86,8 @@ def build_graph() -> StateGraph:
     graph.add_edge("fetch_repo_metadata", "fetch_commit_history")
     graph.add_edge("fetch_commit_history", "triage_commits")
     graph.add_conditional_edges("triage_commits", _fan_out_analyses, ["analyze_diff"])
-    graph.add_edge("analyze_diff", "cluster_into_eras")
+    graph.add_edge("analyze_diff", "summarize_analyses")
+    graph.add_edge("summarize_analyses", "cluster_into_eras")
     graph.add_edge("cluster_into_eras", "synthesize_outline")
     graph.add_edge("synthesize_outline", "expand_to_narrative")
     graph.add_edge("expand_to_narrative", END)

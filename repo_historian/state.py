@@ -62,6 +62,17 @@ class DiffAnalysis:
 
 
 @dataclass
+class BatchSummary:
+    batch_index: int
+    start_date: str
+    end_date: str
+    themes: str
+    narrative_digest: str
+    pair_keys: list[str]
+    representative_pairs: list[str] = field(default_factory=list)
+
+
+@dataclass
 class Era:
     title: str
     start_date: str
@@ -98,6 +109,7 @@ class GraphState(TypedDict):
     all_commits: list[CommitRecord]
     diff_pairs: list[DiffPair]
     diff_analyses: Annotated[list[DiffAnalysis], operator.add]
+    batch_summaries: list[BatchSummary]
     eras: list[Era]
     outline: str
     narrative: str
