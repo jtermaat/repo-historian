@@ -1,4 +1,4 @@
-"""Node: triage_commits — identify inflection points for narrative analysis."""
+"""Node: triage_commits — identify inflection points via overlapping windows."""
 
 from __future__ import annotations
 
@@ -9,7 +9,12 @@ from langchain_core.runnables import RunnableConfig
 from pydantic import BaseModel
 
 from repo_historian import logger
-from repo_historian.config import MAX_INFLECTION_POINTS, MIN_INFLECTION_POINTS
+from repo_historian.config import (
+    MAX_INFLECTION_POINTS,
+    MIN_INFLECTION_POINTS,
+    TRIAGE_MARGIN,
+    TRIAGE_WINDOW_SIZE,
+)
 from repo_historian.nodes._helpers import build_llm
 from repo_historian.state import DiffPair, GraphState, InflectionPoint
 
@@ -25,8 +30,7 @@ class _TriageResponse(BaseModel):
 
 def triage_commits(state: GraphState, config: RunnableConfig) -> dict[str, Any]:
     commits = state["all_commits"]
-    triage_cfg = state["triage_config"]
-    batch_size = triage_cfg.batch_size
+    stride = TRIAGE_WINDOW_SIZE - TRIAGE_MARGIN * 2
 
     logger.info("Identifying inflection points across %d commits", len(commits))
     if len(commits) <= 1:
@@ -37,9 +41,23 @@ def triage_commits(state: GraphState, config: RunnableConfig) -> dict[str, Any]:
     structured_llm = llm.with_structured_output(_TriageResponse)
     all_inflection_points: list[InflectionPoint] = []
 
-    for i in range(0, len(commits), batch_size):
-        batch = commits[i : i + batch_size]
-        commit_lines = "\n".join(f"- {c.sha[:8]} ({c.date}): {c.message}" for c in batch)
+    num_windows = 0
+    for start in range(0, len(commits), stride):
+        end = min(start + TRIAGE_WINDOW_SIZE, len(commits))
+        window = commits[start:end]
+        num_windows += 1
+
+        # First window: no left margin; last window: no right margin.
+        # Boundary commits are added implicitly below.
+        eval_start = TRIAGE_MARGIN if start > 0 else 0
+        eval_end = len(window) - TRIAGE_MARGIN if end < len(commits) else len(window)
+
+        evaluable_shas = {c.sha[:8] for c in window[eval_start:eval_end]}
+
+        commit_lines = "\n".join(f"- {c.sha[:8]} ({c.date}): {c.message}" for c in window)
+
+        eval_first = window[eval_start].sha[:8]
+        eval_last = window[eval_end - 1].sha[:8]
 
         result: _TriageResponse = structured_llm.invoke(
             [
@@ -51,7 +69,9 @@ def triage_commits(state: GraphState, config: RunnableConfig) -> dict[str, Any]:
                         "changed direction, reached a milestone, or shifted its character.\n\n"
                         "Guidelines:\n"
                         f"- Aim for {MIN_INFLECTION_POINTS}–{MAX_INFLECTION_POINTS} "
-                        "inflection points per batch\n"
+                        "inflection points\n"
+                        f"- ONLY select commits between {eval_first} and {eval_last} "
+                        f"(inclusive) — the rest are context only\n"
                         "- An inflection point marks: a new feature area, architecture shift, "
                         "major refactor, release milestone, or significant change in project "
                         "direction\n"
@@ -65,14 +85,30 @@ def triage_commits(state: GraphState, config: RunnableConfig) -> dict[str, Any]:
                 ),
                 HumanMessage(
                     content=(
-                        f"Identify narrative inflection points from these commits:\n{commit_lines}"
+                        f"Window {num_windows} — identify inflection points "
+                        f"(only between {eval_first} and {eval_last}):\n{commit_lines}"
                     )
                 ),
             ]
         )
 
         for item in result.inflection_points:
-            all_inflection_points.append(InflectionPoint(sha=item.sha, label=item.label))
+            if item.sha in evaluable_shas:
+                all_inflection_points.append(InflectionPoint(sha=item.sha, label=item.label))
+
+        logger.info(
+            "  Window %d: %d commits, %d evaluable, %d inflection points",
+            num_windows,
+            len(window),
+            len(evaluable_shas),
+            sum(1 for ip in result.inflection_points if ip.sha in evaluable_shas),
+        )
+
+        # If this window reached the end, stop
+        if end >= len(commits):
+            break
+
+    logger.info("Processed %d windows", num_windows)
 
     # Resolve SHA prefixes to full SHAs and deduplicate
     prefix_to_full: dict[str, str] = {}

@@ -81,11 +81,6 @@ class Era:
     diff_pair_keys: list[str]
 
 
-@dataclass
-class TriageConfig:
-    batch_size: int
-
-
 # --- Substate for analyze_diff fan-out via Send() ---
 
 
@@ -104,7 +99,6 @@ class DiffAnalysisInput(TypedDict):
 
 class GraphState(TypedDict):
     repo_url: str
-    triage_config: TriageConfig
     repo_metadata: RepoMetadata
     all_commits: list[CommitRecord]
     diff_pairs: list[DiffPair]

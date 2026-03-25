@@ -2,8 +2,9 @@
 
 VERSION: str = "0.1.0"
 
-# Triage
-DEFAULT_TRIAGE_BATCH_SIZE: int = 80
+# Triage — overlapping-window parameters
+TRIAGE_WINDOW_SIZE: int = 500
+TRIAGE_MARGIN: int = 50
 MIN_INFLECTION_POINTS: int = 3
 MAX_INFLECTION_POINTS: int = 12
 

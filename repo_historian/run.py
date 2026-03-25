@@ -13,14 +13,12 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from repo_historian.config import (
-    DEFAULT_TRIAGE_BATCH_SIZE,
     MODEL_NAME,
     PROVIDER_API_KEY_ENV,
     VERSION,
     detect_provider,
 )
 from repo_historian.graph import build_graph
-from repo_historian.state import TriageConfig
 
 
 def _slugify(repo_url: str) -> str:
@@ -36,7 +34,6 @@ def main(argv: list[str] | None = None) -> None:
 
     parser = argparse.ArgumentParser(description="Repo Historian — narrative Git history")
     parser.add_argument("url", help="GitHub repository URL")
-    parser.add_argument("--batch-size", type=int, default=DEFAULT_TRIAGE_BATCH_SIZE)
     args = parser.parse_args(argv)
 
     github_token = os.environ.get("GITHUB_TOKEN", "")
@@ -57,10 +54,9 @@ def main(argv: list[str] | None = None) -> None:
 
     initial_state = {
         "repo_url": args.url,
-        "triage_config": TriageConfig(batch_size=args.batch_size),
     }
 
-    print(f"Processing {args.url} (model={MODEL_NAME}, batch-size={args.batch_size})...")
+    print(f"Processing {args.url} (model={MODEL_NAME})...")
 
     slug = _slugify(args.url)
     run_config = {
@@ -69,7 +65,6 @@ def main(argv: list[str] | None = None) -> None:
         "metadata": {
             "repo_url": args.url,
             "model_name": MODEL_NAME,
-            "batch_size": args.batch_size,
             "app_version": VERSION,
         },
         "configurable": {
