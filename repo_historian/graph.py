@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from langgraph.constants import Send
 from langgraph.graph import END, START, StateGraph
-from langgraph.types import RetryPolicy, default_retry_on
+from langgraph.types import RetryPolicy
 
 from repo_historian.nodes import (
     analyze_diff,
@@ -16,20 +16,12 @@ from repo_historian.nodes import (
     synthesize_outline,
     triage_commits,
 )
+from repo_historian.nodes._helpers import _retry_on
 from repo_historian.state import (
     CommitRecord,
     DiffAnalysisInput,
     GraphState,
 )
-
-
-def _retry_on(exc: Exception) -> bool:
-    """Don't retry length-limit errors — the same prompt will fail again."""
-    from openai import LengthFinishReasonError
-
-    if isinstance(exc, LengthFinishReasonError):
-        return False
-    return default_retry_on(exc)
 
 
 def _fan_out_analyses(state: GraphState) -> list[Send]:

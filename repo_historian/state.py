@@ -96,6 +96,11 @@ class DiffAnalysisInput(TypedDict):
     label: str
 
 
+class PerRepoInput(TypedDict):
+    repo_url: str
+    github_token: str
+
+
 # --- LangGraph top-level state ---
 
 

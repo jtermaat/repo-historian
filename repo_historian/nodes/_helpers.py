@@ -6,6 +6,7 @@ import re
 
 from langchain_core.language_models import BaseChatModel
 from langchain_core.runnables import RunnableConfig
+from langgraph.types import default_retry_on
 
 from repo_historian.config import (
     LLM_TEMPERATURE,
@@ -14,6 +15,15 @@ from repo_historian.config import (
     REASONING_EFFORT,
     detect_provider,
 )
+
+
+def _retry_on(exc: Exception) -> bool:
+    """Don't retry length-limit errors — the same prompt will fail again."""
+    from openai import LengthFinishReasonError
+
+    if isinstance(exc, LengthFinishReasonError):
+        return False
+    return default_retry_on(exc)
 
 
 def parse_repo_full_name(url: str) -> str:
