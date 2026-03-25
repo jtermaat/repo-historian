@@ -111,6 +111,7 @@ def summarize_analyses(state: GraphState, config: RunnableConfig) -> dict[str, A
                 representative_pairs=[
                     short_to_full.get(k, k) for k in result.representative_pair_keys
                 ],
+                repo_full_name=batch[0].repo_full_name,
             )
         )
         logger.info(

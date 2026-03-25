@@ -17,6 +17,10 @@ MAX_DIFF_CHARS_TOTAL: int = 14000
 MIN_ERAS: int = 3
 MAX_ERAS: int = 7
 
+# Cross-repo era clustering
+MIN_CROSS_REPO_ERAS: int = 3
+MAX_CROSS_REPO_ERAS: int = 10
+
 # Summarization
 MAX_REPRESENTATIVE_PAIRS: int = 5
 SKIP_SUMMARIZATION_FACTOR: int = 5  # skip if analyses <= MAX_ERAS * this

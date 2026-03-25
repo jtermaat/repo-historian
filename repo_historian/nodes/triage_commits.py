@@ -154,9 +154,12 @@ def triage_commits(state: GraphState, config: RunnableConfig) -> dict[str, Any]:
     )
     for p in diff_pairs:
         print(f"  {p.from_sha[:8]}..{p.to_sha[:8]}: {p.label}")
-    answer = input("Proceed? [Y/n] ").strip().lower()
-    if answer and answer != "y":
-        print("Aborted by user.")
-        raise SystemExit(0)
+
+    skip_confirmation = config.get("configurable", {}).get("skip_confirmation", False)
+    if not skip_confirmation:
+        answer = input("Proceed? [Y/n] ").strip().lower()
+        if answer and answer != "y":
+            print("Aborted by user.")
+            raise SystemExit(0)
 
     return {"diff_pairs": diff_pairs}

@@ -112,5 +112,6 @@ def analyze_diff(state: DiffAnalysisInput, config: RunnableConfig) -> dict[str, 
         to_message=state["to_commit"].message,
         authors=all_authors,
         tags=all_tags,
+        repo_full_name=state["repo_full_name"],
     )
     return {"diff_analyses": [analysis]}

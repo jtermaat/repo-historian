@@ -93,3 +93,28 @@ def build_graph() -> StateGraph:
     graph.add_edge("expand_to_narrative", END)
 
     return graph.compile()
+
+
+def build_per_repo_graph():
+    """Build a per-repo subgraph that stops after summarize_analyses.
+
+    Used by the multi-repo orchestrator to run the per-repo pipeline
+    without era clustering, outline, or narrative steps.
+    """
+    graph = StateGraph(GraphState)
+    retry = RetryPolicy(retry_on=_retry_on)
+
+    graph.add_node("fetch_repo_metadata", fetch_repo_metadata, retry=retry)
+    graph.add_node("fetch_commit_history", fetch_commit_history, retry=retry)
+    graph.add_node("triage_commits", triage_commits, retry=retry)
+    graph.add_node("analyze_diff", analyze_diff, retry=retry)
+    graph.add_node("summarize_analyses", summarize_analyses, retry=retry)
+
+    graph.add_edge(START, "fetch_repo_metadata")
+    graph.add_edge("fetch_repo_metadata", "fetch_commit_history")
+    graph.add_edge("fetch_commit_history", "triage_commits")
+    graph.add_conditional_edges("triage_commits", _fan_out_analyses, ["analyze_diff"])
+    graph.add_edge("analyze_diff", "summarize_analyses")
+    graph.add_edge("summarize_analyses", END)
+
+    return graph.compile()

@@ -59,6 +59,7 @@ class DiffAnalysis:
     to_message: str = ""
     authors: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
+    repo_full_name: str = ""
 
 
 @dataclass
@@ -70,6 +71,7 @@ class BatchSummary:
     narrative_digest: str
     pair_keys: list[str]
     representative_pairs: list[str] = field(default_factory=list)
+    repo_full_name: str = ""
 
 
 @dataclass
@@ -105,5 +107,31 @@ class GraphState(TypedDict):
     diff_analyses: Annotated[list[DiffAnalysis], operator.add]
     batch_summaries: list[BatchSummary]
     eras: list[Era]
+    outline: str
+    narrative: str
+
+
+# --- Multi-repo orchestrator state ---
+
+
+@dataclass
+class RepoAnalysisResult:
+    """Collected output from one per-repo pipeline run."""
+
+    repo_url: str
+    repo_metadata: RepoMetadata
+    all_commits: list[CommitRecord]
+    diff_pairs: list[DiffPair]
+    diff_analyses: list[DiffAnalysis]
+    batch_summaries: list[BatchSummary]
+
+
+class MultiRepoGraphState(TypedDict):
+    repo_urls: list[str]
+    repo_results: Annotated[list[RepoAnalysisResult], operator.add]
+    all_repo_metadata: list[RepoMetadata]
+    merged_analyses: list[DiffAnalysis]
+    merged_batch_summaries: list[BatchSummary]
+    cross_repo_eras: list[Era]
     outline: str
     narrative: str
