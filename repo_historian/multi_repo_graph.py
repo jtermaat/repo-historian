@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-# --- Substate for per-repo fan-out ---
 from typing import Any, TypedDict
 
+from langchain_core.runnables import RunnableConfig
 from langgraph.constants import Send
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import RetryPolicy, default_retry_on
@@ -19,6 +19,8 @@ from repo_historian.nodes.cross_repo_synthesize_outline import (
     cross_repo_synthesize_outline,
 )
 from repo_historian.state import MultiRepoGraphState, RepoAnalysisResult
+
+# --- Substate for per-repo fan-out ---
 
 
 class _PerRepoInput(TypedDict):
@@ -37,7 +39,7 @@ def _retry_on(exc: Exception) -> bool:
 # --- Node: run a single repo through the per-repo pipeline ---
 
 
-def run_single_repo(state: _PerRepoInput, config: dict) -> dict[str, Any]:
+def run_single_repo(state: _PerRepoInput, config: RunnableConfig) -> dict[str, Any]:
     """Run the per-repo pipeline for one repository."""
     repo_url = state["repo_url"]
     github_token = state["github_token"]
@@ -74,10 +76,10 @@ def run_single_repo(state: _PerRepoInput, config: dict) -> dict[str, Any]:
     return {"repo_results": [repo_result]}
 
 
-# --- Node: fan out to per-repo pipelines ---
+# --- Conditional edge: fan out to per-repo pipelines ---
 
 
-def _fan_out_repos(state: MultiRepoGraphState, config: dict) -> list[Send]:
+def _fan_out_repos(state: MultiRepoGraphState, config: RunnableConfig) -> list[Send]:
     """Generate Send() calls for each repo URL."""
     github_token = config.get("configurable", {}).get("github_token", "")
     sends: list[Send] = []
@@ -93,7 +95,7 @@ def _fan_out_repos(state: MultiRepoGraphState, config: dict) -> list[Send]:
 # --- Node: collect and merge per-repo results ---
 
 
-def collect_and_merge(state: MultiRepoGraphState, config: dict) -> dict[str, Any]:
+def collect_and_merge(state: MultiRepoGraphState, config: RunnableConfig) -> dict[str, Any]:
     """Merge per-repo results and prompt for confirmation."""
     repo_results: list[RepoAnalysisResult] = state["repo_results"]
 
@@ -144,12 +146,14 @@ def build_multi_repo_graph():
     graph = StateGraph(MultiRepoGraphState)
     retry = RetryPolicy(retry_on=_retry_on)
 
+    # fan_out_repos is a normal node whose output triggers Send() to run_single_repo
     graph.add_node("run_single_repo", run_single_repo)
     graph.add_node("collect_and_merge", collect_and_merge)
     graph.add_node("cross_repo_cluster_eras", cross_repo_cluster_eras, retry=retry)
     graph.add_node("cross_repo_synthesize_outline", cross_repo_synthesize_outline)
     graph.add_node("cross_repo_expand_narrative", cross_repo_expand_narrative, retry=retry)
 
+    # START → fan out via conditional edge → parallel run_single_repo nodes
     graph.add_conditional_edges(START, _fan_out_repos, ["run_single_repo"])
     graph.add_edge("run_single_repo", "collect_and_merge")
     graph.add_edge("collect_and_merge", "cross_repo_cluster_eras")
