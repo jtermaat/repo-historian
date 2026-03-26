@@ -23,12 +23,7 @@ fan out per-repo pipelines (fetch → triage → analyze, in parallel)
 ## Setup
 
 ```bash
-# Clone and install
-git clone https://github.com/your-org/repo-historian.git
-cd repo-historian
 uv sync
-
-# Configure environment
 cp .env.example .env
 # Fill in GITHUB_TOKEN and the API key for your chosen provider
 ```
