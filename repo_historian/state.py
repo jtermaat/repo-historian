@@ -62,27 +62,6 @@ class DiffAnalysis:
     repo_full_name: str = ""
 
 
-@dataclass
-class BatchSummary:
-    batch_index: int
-    start_date: str
-    end_date: str
-    themes: str
-    narrative_digest: str
-    pair_keys: list[str]
-    representative_pairs: list[str] = field(default_factory=list)
-    repo_full_name: str = ""
-
-
-@dataclass
-class Era:
-    title: str
-    start_date: str
-    end_date: str
-    description: str
-    diff_pair_keys: list[str]
-
-
 # --- Substate for analyze_diff fan-out via Send() ---
 
 
@@ -110,9 +89,6 @@ class GraphState(TypedDict):
     all_commits: list[CommitRecord]
     diff_pairs: list[DiffPair]
     diff_analyses: Annotated[list[DiffAnalysis], operator.add]
-    batch_summaries: list[BatchSummary]
-    eras: list[Era]
-    outline: str
     narrative: str
 
 
@@ -128,7 +104,6 @@ class RepoAnalysisResult:
     all_commits: list[CommitRecord]
     diff_pairs: list[DiffPair]
     diff_analyses: list[DiffAnalysis]
-    batch_summaries: list[BatchSummary]
 
 
 class MultiRepoGraphState(TypedDict):
@@ -136,7 +111,4 @@ class MultiRepoGraphState(TypedDict):
     repo_results: Annotated[list[RepoAnalysisResult], operator.add]
     all_repo_metadata: list[RepoMetadata]
     merged_analyses: list[DiffAnalysis]
-    merged_batch_summaries: list[BatchSummary]
-    cross_repo_eras: list[Era]
-    outline: str
     narrative: str

@@ -15,7 +15,6 @@ def collect_and_merge(state: MultiRepoGraphState, config: RunnableConfig) -> dic
 
     all_metadata = [r.repo_metadata for r in repo_results]
     all_analyses: list = []
-    all_batch_summaries: list = []
 
     print(f"\n{'=' * 60}")
     print("Cross-repo triage summary:")
@@ -24,16 +23,13 @@ def collect_and_merge(state: MultiRepoGraphState, config: RunnableConfig) -> dic
     for r in repo_results:
         print(f"\n  {r.repo_metadata.full_name}:")
         print(f"    {len(r.diff_analyses)} diff ranges analyzed")
-        print(f"    {len(r.batch_summaries)} batch summaries")
         for dp in r.diff_pairs:
             print(f"      {dp.from_sha[:8]}..{dp.to_sha[:8]}: {dp.label}")
 
         all_analyses.extend(r.diff_analyses)
-        all_batch_summaries.extend(r.batch_summaries)
 
     # Sort chronologically
     all_analyses.sort(key=lambda a: a.start_date)
-    all_batch_summaries.sort(key=lambda bs: bs.start_date)
 
     print(f"\n  Total: {len(all_analyses)} diff ranges across {len(repo_results)} repos")
     print(f"{'=' * 60}")
@@ -48,5 +44,4 @@ def collect_and_merge(state: MultiRepoGraphState, config: RunnableConfig) -> dic
     return {
         "all_repo_metadata": all_metadata,
         "merged_analyses": all_analyses,
-        "merged_batch_summaries": all_batch_summaries,
     }

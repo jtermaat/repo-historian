@@ -13,19 +13,6 @@ MAX_FILES_PER_DIFF: int = 15
 MAX_PATCH_CHARS_PER_FILE: int = 2500
 MAX_DIFF_CHARS_TOTAL: int = 14000
 
-# Era clustering
-MIN_ERAS: int = 3
-MAX_ERAS: int = 7
-
-# Cross-repo era clustering
-MIN_CROSS_REPO_ERAS: int = 3
-MAX_CROSS_REPO_ERAS: int = 10
-
-# Summarization
-MAX_REPRESENTATIVE_PAIRS: int = 5
-SKIP_SUMMARIZATION_FACTOR: int = 5  # skip if analyses <= MAX_ERAS * this
-MIN_SUMMARIES_PER_ERA: int = 3  # floor for target summary count per era
-
 # Narrative synthesis
 MIN_NARRATIVE_WORDS: int = 1200
 MAX_NARRATIVE_WORDS: int = 2500
@@ -46,6 +33,12 @@ MODEL_NAME: str = "gpt-5.4-mini"
 LLM_TEMPERATURE: float = 0
 MAX_COMPLETION_TOKENS: int = 16_384
 REASONING_EFFORT: str = "low"
+
+# Narrative model — separate from the data-gathering model above
+# NARRATIVE_MODEL_NAME: str = "claude-opus-4-6"
+NARRATIVE_MODEL_NAME: str = "gpt-5.4"
+NARRATIVE_LLM_TEMPERATURE: float = 0.7
+NARRATIVE_MAX_COMPLETION_TOKENS: int = 16_384
 
 
 PROVIDER_API_KEY_ENV: dict[str, str] = {

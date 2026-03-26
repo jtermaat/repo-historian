@@ -8,13 +8,10 @@ from langgraph.types import RetryPolicy
 
 from repo_historian.nodes import (
     analyze_diff,
-    cluster_into_eras,
-    expand_to_narrative,
     fetch_commit_history,
     fetch_repo_metadata,
-    summarize_analyses,
-    synthesize_outline,
     triage_commits,
+    write_narrative,
 )
 from repo_historian.nodes._helpers import _retry_on
 from repo_historian.state import (
@@ -69,29 +66,23 @@ def build_graph() -> StateGraph:
     graph.add_node("fetch_commit_history", fetch_commit_history, retry=retry)
     graph.add_node("triage_commits", triage_commits, retry=retry)
     graph.add_node("analyze_diff", analyze_diff, retry=retry)
-    graph.add_node("summarize_analyses", summarize_analyses, retry=retry)
-    graph.add_node("cluster_into_eras", cluster_into_eras, retry=retry)
-    graph.add_node("synthesize_outline", synthesize_outline)
-    graph.add_node("expand_to_narrative", expand_to_narrative, retry=retry)
+    graph.add_node("write_narrative", write_narrative, retry=retry)
 
     graph.add_edge(START, "fetch_repo_metadata")
     graph.add_edge("fetch_repo_metadata", "fetch_commit_history")
     graph.add_edge("fetch_commit_history", "triage_commits")
     graph.add_conditional_edges("triage_commits", _fan_out_analyses, ["analyze_diff"])
-    graph.add_edge("analyze_diff", "summarize_analyses")
-    graph.add_edge("summarize_analyses", "cluster_into_eras")
-    graph.add_edge("cluster_into_eras", "synthesize_outline")
-    graph.add_edge("synthesize_outline", "expand_to_narrative")
-    graph.add_edge("expand_to_narrative", END)
+    graph.add_edge("analyze_diff", "write_narrative")
+    graph.add_edge("write_narrative", END)
 
     return graph.compile()
 
 
 def build_per_repo_graph():
-    """Build a per-repo subgraph that stops after summarize_analyses.
+    """Build a per-repo subgraph that stops after analyze_diff.
 
     Used by the multi-repo orchestrator to run the per-repo pipeline
-    without era clustering, outline, or narrative steps.
+    without narrative generation (that happens at the orchestrator level).
     """
     graph = StateGraph(GraphState)
     retry = RetryPolicy(retry_on=_retry_on)
@@ -100,13 +91,11 @@ def build_per_repo_graph():
     graph.add_node("fetch_commit_history", fetch_commit_history, retry=retry)
     graph.add_node("triage_commits", triage_commits, retry=retry)
     graph.add_node("analyze_diff", analyze_diff, retry=retry)
-    graph.add_node("summarize_analyses", summarize_analyses, retry=retry)
 
     graph.add_edge(START, "fetch_repo_metadata")
     graph.add_edge("fetch_repo_metadata", "fetch_commit_history")
     graph.add_edge("fetch_commit_history", "triage_commits")
     graph.add_conditional_edges("triage_commits", _fan_out_analyses, ["analyze_diff"])
-    graph.add_edge("analyze_diff", "summarize_analyses")
-    graph.add_edge("summarize_analyses", END)
+    graph.add_edge("analyze_diff", END)
 
     return graph.compile()

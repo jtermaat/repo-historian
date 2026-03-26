@@ -12,6 +12,9 @@ from repo_historian.config import (
     LLM_TEMPERATURE,
     MAX_COMPLETION_TOKENS,
     MODEL_NAME,
+    NARRATIVE_LLM_TEMPERATURE,
+    NARRATIVE_MAX_COMPLETION_TOKENS,
+    NARRATIVE_MODEL_NAME,
     REASONING_EFFORT,
     detect_provider,
 )
@@ -64,5 +67,35 @@ def build_llm() -> BaseChatModel:
             model=MODEL_NAME,
             temperature=LLM_TEMPERATURE,
             max_output_tokens=MAX_COMPLETION_TOKENS,
+        )
+    raise ValueError(f"Unsupported provider: {provider}")
+
+
+def build_narrative_llm() -> BaseChatModel:
+    """Build the LLM used for final narrative generation (separate model)."""
+    provider = detect_provider(NARRATIVE_MODEL_NAME)
+    if provider == "anthropic":
+        from langchain_anthropic import ChatAnthropic
+
+        return ChatAnthropic(
+            model=NARRATIVE_MODEL_NAME,
+            temperature=NARRATIVE_LLM_TEMPERATURE,
+            max_tokens=NARRATIVE_MAX_COMPLETION_TOKENS,
+        )
+    elif provider == "openai":
+        from langchain_openai import ChatOpenAI
+
+        return ChatOpenAI(
+            model=NARRATIVE_MODEL_NAME,
+            temperature=NARRATIVE_LLM_TEMPERATURE,
+            max_tokens=NARRATIVE_MAX_COMPLETION_TOKENS,
+        )
+    elif provider == "google":
+        from langchain_google_genai import ChatGoogleGenerativeAI
+
+        return ChatGoogleGenerativeAI(
+            model=NARRATIVE_MODEL_NAME,
+            temperature=NARRATIVE_LLM_TEMPERATURE,
+            max_output_tokens=NARRATIVE_MAX_COMPLETION_TOKENS,
         )
     raise ValueError(f"Unsupported provider: {provider}")

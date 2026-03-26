@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 
 from repo_historian.config import (
     MODEL_NAME,
+    NARRATIVE_MODEL_NAME,
     PROVIDER_API_KEY_ENV,
     VERSION,
     detect_provider,
@@ -59,35 +60,33 @@ def _run_single_repo(args: argparse.Namespace, github_token: str) -> None:
         "metadata": {
             "repo_url": args.url,
             "model_name": MODEL_NAME,
+            "narrative_model_name": NARRATIVE_MODEL_NAME,
             "app_version": VERSION,
         },
         "configurable": {
             "github_token": github_token,
+            "style": args.style,
         },
     }
 
-    print(f"Processing {args.url} (model={MODEL_NAME})...")
+    print(f"Processing {args.url} (data={MODEL_NAME}, narrative={NARRATIVE_MODEL_NAME})...")
     result = graph.invoke(initial_state, config=run_config)
 
     out_dir = Path("output")
     out_dir.mkdir(exist_ok=True)
 
-    outline_path = out_dir / f"{slug}_outline.md"
     narrative_path = out_dir / f"{slug}_narrative.md"
     raw_path = out_dir / f"{slug}_raw.json"
 
-    outline_path.write_text(result["outline"], encoding="utf-8")
     narrative_path.write_text(result["narrative"], encoding="utf-8")
 
     raw_data = {
         "repo_metadata": asdict(result["repo_metadata"]),
         "diff_analyses": [asdict(a) for a in result["diff_analyses"]],
-        "eras": [asdict(e) for e in result["eras"]],
     }
     raw_path.write_text(json.dumps(raw_data, indent=2, default=str), encoding="utf-8")
 
     print("\nDone! Outputs written to:")
-    print(f"  Outline:   {outline_path}")
     print(f"  Narrative: {narrative_path}")
     print(f"  Raw JSON:  {raw_path}")
 
@@ -111,14 +110,19 @@ def _run_multi_repo(args: argparse.Namespace, github_token: str) -> None:
         "metadata": {
             "repo_urls": repo_urls,
             "model_name": MODEL_NAME,
+            "narrative_model_name": NARRATIVE_MODEL_NAME,
             "app_version": VERSION,
         },
         "configurable": {
             "github_token": github_token,
+            "style": args.style,
         },
     }
 
-    print(f"Processing {len(repo_urls)} repositories (model={MODEL_NAME}):")
+    print(
+        f"Processing {len(repo_urls)} repositories "
+        f"(data={MODEL_NAME}, narrative={NARRATIVE_MODEL_NAME}):"
+    )
     for url in repo_urls:
         print(f"  - {url}")
 
@@ -127,22 +131,18 @@ def _run_multi_repo(args: argparse.Namespace, github_token: str) -> None:
     out_dir = Path("output")
     out_dir.mkdir(exist_ok=True)
 
-    outline_path = out_dir / f"{slug}_outline.md"
     narrative_path = out_dir / f"{slug}_narrative.md"
     raw_path = out_dir / f"{slug}_raw.json"
 
-    outline_path.write_text(result["outline"], encoding="utf-8")
     narrative_path.write_text(result["narrative"], encoding="utf-8")
 
     raw_data = {
         "all_repo_metadata": [asdict(m) for m in result["all_repo_metadata"]],
         "merged_analyses": [asdict(a) for a in result["merged_analyses"]],
-        "cross_repo_eras": [asdict(e) for e in result["cross_repo_eras"]],
     }
     raw_path.write_text(json.dumps(raw_data, indent=2, default=str), encoding="utf-8")
 
     print("\nDone! Outputs written to:")
-    print(f"  Outline:   {outline_path}")
     print(f"  Narrative: {narrative_path}")
     print(f"  Raw JSON:  {raw_path}")
 
@@ -162,6 +162,10 @@ def main(argv: list[str] | None = None) -> None:
         "--name",
         help="Name for the run (used in output filenames)",
     )
+    parser.add_argument(
+        "--style",
+        help="Narrative style (e.g., 'a Ken Burns documentary')",
+    )
     args = parser.parse_args(argv)
 
     if not args.url and not args.repos:
@@ -174,14 +178,15 @@ def main(argv: list[str] | None = None) -> None:
         print("Error: GITHUB_TOKEN environment variable is required.", file=sys.stderr)
         sys.exit(1)
 
-    provider = detect_provider(MODEL_NAME)
-    api_key_env = PROVIDER_API_KEY_ENV[provider]
-    if not os.environ.get(api_key_env, ""):
-        print(
-            f"Error: {api_key_env} environment variable is required for model {MODEL_NAME}.",
-            file=sys.stderr,
-        )
-        sys.exit(1)
+    for model in {MODEL_NAME, NARRATIVE_MODEL_NAME}:
+        provider = detect_provider(model)
+        api_key_env = PROVIDER_API_KEY_ENV[provider]
+        if not os.environ.get(api_key_env, ""):
+            print(
+                f"Error: {api_key_env} environment variable is required for model {model}.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
 
     if args.repos:
         _run_multi_repo(args, github_token)
