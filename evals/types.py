@@ -47,3 +47,11 @@ class EvalConfig:
     judge_model: str
     eval_scope: str  # "all" | "narrative" | "steps"
     style: str | None = None
+
+
+@dataclass
+class TargetOutput:
+    """Typed contract between the pipeline target and evaluators."""
+
+    narrative: str
+    raw_data: dict

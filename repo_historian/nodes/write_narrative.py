@@ -21,8 +21,6 @@ def _format_analyses(
     return [
         {
             "label": a.label,
-            "summary": a.summary,
-            "narrative_paragraph": a.narrative_paragraph,
             "key_changes": a.key_changes,
             "start_date": a.start_date,
             "end_date": a.end_date,

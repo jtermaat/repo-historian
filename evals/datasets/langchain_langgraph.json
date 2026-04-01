@@ -33,7 +33,7 @@
             "description": "LangGraph adopts Pregel as its execution engine",
             "approx_date": "2023-10-22",
             "repo": "langgraph",
-            "why_important": "Pregel is a pub/sub channel-based execution model (Channels, Nodes, Topics). This was a fundamental architectural choice — graph execution became message-passing over channels rather than simple function composition. This is one of the most technically interesting decisions in the ecosystem."
+            "why_important": "Pregel (inspired by Google's BSP model) made graph execution into deterministic superstep-based computation: nodes run in parallel, exchange state through channels, and synchronize at step boundaries. This gave LangGraph reproducible executions with well-defined state snapshots at every step — the foundation that later made checkpointing, replay, and human-in-the-loop interruption possible."
           },
           {
             "description": "langchain-core extracted into a separate package",
@@ -51,7 +51,7 @@
             "description": "Checkpointing and interrupt mechanisms formalized in LangGraph",
             "approx_date": "2024-01-15",
             "repo": "langgraph",
-            "why_important": "State persistence and human-in-the-loop patterns became first-class features, differentiating LangGraph from simple DAG runners"
+            "why_important": "State persistence and human-in-the-loop patterns became first-class features, built on top of Pregel's deterministic superstep boundaries where state is well-defined and serializable"
           },
           {
             "description": "LangChain v0.2.0 — major restructuring and community package split",
@@ -69,7 +69,7 @@
             "description": "LangGraph v1.0.0 release",
             "approx_date": "2025-10-17",
             "repo": "langgraph",
-            "why_important": "Production-ready stable API milestone for the graph execution framework"
+            "why_important": "Stabilized the StateGraph API, checkpointing interface, and interrupt/resume patterns as a public contract — signaling that production systems could depend on these without expecting breaking changes."
           },
           {
             "description": "LangChain core v1.0.0 and langchain_v1 release — agentic framework",
@@ -87,7 +87,7 @@
         "expected_narrative_themes": [
           "The evolution from a monolithic Python package to a modular ecosystem of packages (langchain, langchain-core, langchain-community, langgraph, langgraph-prebuilt)",
           "Dependency inversion: how extracting langchain-core allowed the ecosystem to scale without circular dependencies",
-          "The Pregel execution engine in LangGraph — a pub/sub channel-based architecture for graph execution, not just simple function chaining",
+          "The Pregel execution engine in LangGraph — superstep-based deterministic graph execution that enabled checkpointing, replay, and interruption by design",
           "The convergence on StateGraph over MessageGraph, reflecting a shift from message-passing to state-management abstractions",
           "LCEL and the Runnable protocol as the unifying interface across the ecosystem",
           "The coordinated v1.0.0 releases of both LangChain and LangGraph on the same day, signaling ecosystem maturity",
@@ -100,7 +100,7 @@
           "Both projects released v1.0.0 on the same day (Oct 17, 2025), showing coordinated maturity milestones",
           "LangGraph's StateGraph uses langchain-core's Runnable interface, making the two projects composable at the API level"
         ],
-        "analysis_quality_expectations": "Each diff analysis should surface specific technical decisions and their motivations, not just describe what files changed. For example, the Pregel adoption should explain the pub/sub channel model; the core split should discuss dependency inversion; the v0.2 restructuring should explain namespace cleanup rationale.",
+        "analysis_quality_expectations": "Each diff analysis should surface specific technical decisions and their motivations, not just describe what files changed. For example, the Pregel adoption should explain the BSP superstep execution model and why it enables deterministic replay; the core split should discuss dependency inversion; the v0.2 restructuring should explain namespace cleanup rationale.",
         "narrative_quality_expectations": "The narrative should read as a coherent story of an ecosystem evolving from monolith to modular architecture, with specific technical depth on the most interesting decisions (Pregel, core split, LCEL, coordinated v1 releases). Generic summaries like 'the project grew and added features' are insufficient."
       }
     }

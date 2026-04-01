@@ -20,9 +20,6 @@ from repo_historian.state import DiffAnalysis, DiffAnalysisInput
 
 
 class _AnalysisOutput(BaseModel):
-    era_hint: str
-    summary: str
-    narrative_paragraph: str
     key_changes: list[str]
 
 
@@ -69,11 +66,11 @@ def analyze_diff(state: DiffAnalysisInput, config: RunnableConfig) -> dict[str, 
             SystemMessage(
                 content=(
                     "You are a software historian analyzing a range of changes between two "
-                    "commits in a repository. This range represents a cohesive chapter of "
-                    "the project's story. Provide: era_hint (a short thematic label for this "
-                    "period of the project), summary (1-2 sentences), narrative_paragraph "
-                    "(3-5 sentences telling the story of this arc of change in past tense), "
-                    "and key_changes (3-5 bullet points)."
+                    "commits in a repository. Produce key_changes: bullet points capturing "
+                    "the most important technical changes, architectural decisions, and "
+                    "their motivations. Be specific — name concrete technologies, patterns, "
+                    "config keys, and design tradeoffs. Each bullet should be self-contained "
+                    "and information-dense. Do not omit anything technically interesting."
                 )
             ),
             HumanMessage(
@@ -90,26 +87,19 @@ def analyze_diff(state: DiffAnalysisInput, config: RunnableConfig) -> dict[str, 
         ]
     )
 
-    pair_key = f"{state['from_sha']}..{state['to_sha']}"
     all_tags = [t for c in commits_in_range for t in c.tags]
     all_authors = list({c.author for c in commits_in_range})
 
     analysis = DiffAnalysis(
-        pair_key=pair_key,
         from_sha=state["from_sha"],
         to_sha=state["to_sha"],
-        era_hint=result.era_hint,
-        summary=result.summary,
-        narrative_paragraph=result.narrative_paragraph,
+        label=state.get("label", ""),
         key_changes=result.key_changes,
-        additions=additions,
-        deletions=deletions,
         start_date=state["from_commit"].date,
         end_date=state["to_commit"].date,
-        label=state.get("label", ""),
         commit_count=len(commits_in_range),
-        from_message=state["from_commit"].message,
-        to_message=state["to_commit"].message,
+        additions=additions,
+        deletions=deletions,
         authors=all_authors,
         tags=all_tags,
         repo_full_name=state["repo_full_name"],

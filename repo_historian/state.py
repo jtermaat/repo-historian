@@ -42,21 +42,15 @@ class DiffPair:
 
 @dataclass
 class DiffAnalysis:
-    pair_key: str  # "{from_sha}..{to_sha}"
     from_sha: str
     to_sha: str
-    era_hint: str
-    summary: str
-    narrative_paragraph: str
+    label: str
     key_changes: list[str]
-    additions: int = 0
-    deletions: int = 0
     start_date: str = ""
     end_date: str = ""
-    label: str = ""
     commit_count: int = 0
-    from_message: str = ""
-    to_message: str = ""
+    additions: int = 0
+    deletions: int = 0
     authors: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
     repo_full_name: str = ""

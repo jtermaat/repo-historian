@@ -64,8 +64,8 @@ Score 1.0 if every era is distinctly represented and expected inflection points 
 are covered. Score 0.0 if major eras or expected milestones are missing."""
 
 ANALYSIS_QUALITY_PROMPT = """\
-You are evaluating the quality of a structured analysis of a range of code \
-changes in a software project.
+You are evaluating the quality of key_changes bullets produced from analyzing \
+a range of code changes in a software project.
 
 <Inputs>
 {inputs}
@@ -79,20 +79,19 @@ changes in a software project.
 {reference_outputs}
 </Quality expectations>
 
-The input is metadata about a range of commits (dates, messages, size). The \
-output is a structured analysis with an era_hint, summary, narrative_paragraph, \
-and key_changes. The quality expectations describe what depth of insight is \
-expected from a good analysis.
+The input is metadata about a range of commits (dates, size). The output is a \
+list of key_changes bullets summarizing the most important technical changes. \
+The quality expectations describe what depth of insight is expected.
 
 Evaluate:
-1. Does the narrative_paragraph tell a coherent story, or just list changes?
-2. Does the era_hint capture the thematic essence of this period?
-3. Are key_changes specific and technically precise, or vague?
-4. Does the analysis surface interesting patterns, decisions, or tradeoffs?
-5. Does the analysis meet the quality expectations for technical depth?
+1. Are the bullets specific and technically precise, or vague?
+2. Do they name concrete technologies, patterns, config keys, and tradeoffs?
+3. Do they capture motivations and "why" — not just what changed?
+4. Are they information-dense and self-contained?
+5. Do they meet the quality expectations for technical depth?
 
-Score 1.0 if the analysis is insightful, specific, and tells a compelling story. \
-Score 0.0 if it reads like a generic changelog."""
+Score 1.0 if the bullets are insightful, specific, and capture what matters. \
+Score 0.0 if they read like a generic changelog."""
 
 TRIAGE_QUALITY_PROMPT = """\
 You are evaluating whether a set of chapter boundaries chosen for a software \
@@ -110,7 +109,7 @@ project's narrative history are well-selected.
 {reference_outputs}
 </Expected inflection points>
 
-The inputs contain summaries and context for each chapter of the project's \
+The inputs contain key changes and context for each chapter of the project's \
 history. The outputs show the chosen boundaries. The expected inflection points \
 are milestones that a knowledgeable human identified as critical turning points \
 this triage should capture. Evaluate:

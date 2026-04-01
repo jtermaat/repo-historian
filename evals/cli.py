@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 from .pipeline import multi_slug, slugify
 from .types import EvalConfig
 
-DEFAULT_JUDGE_MODEL = "openai:gpt-5.4-mini"
+DEFAULT_JUDGE_MODEL = "openai:gpt-5.4"
 DEFAULT_DATASET = "langchain_langgraph"
 DATASETS_DIR = Path(__file__).parent / "datasets"
 
