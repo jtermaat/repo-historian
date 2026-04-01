@@ -242,12 +242,22 @@ def run_experiment(dataset_def: dict, config: EvalConfig) -> None:
     out_dir = Path("output")
     out_dir.mkdir(exist_ok=True)
 
+    # Find next run increment
+    existing = sorted(out_dir.glob("eval-run-*"))
+    run_nums = []
+    for p in existing:
+        part = p.stem.split("eval-run-")[1].split("_")[0]
+        if part.isdigit():
+            run_nums.append(int(part))
+    run_id = max(run_nums, default=0) + 1
+    run_prefix = f"eval-run-{run_id}"
+
     def target(inputs: dict) -> dict:
         raw_data, narrative, slug = run_pipeline(inputs["repo_urls"], name=name, style=config.style)
-        (out_dir / f"{slug}_raw.json").write_text(
+        (out_dir / f"{run_prefix}_raw.json").write_text(
             json.dumps(raw_data, indent=2, default=str), encoding="utf-8"
         )
-        (out_dir / f"{slug}_narrative.md").write_text(narrative, encoding="utf-8")
+        (out_dir / f"{run_prefix}_narrative.md").write_text(narrative, encoding="utf-8")
         output = TargetOutput(narrative=narrative, raw_data=raw_data)
         return asdict(output)
 
