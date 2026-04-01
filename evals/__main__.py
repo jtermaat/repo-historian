@@ -1,3 +1,3 @@
-from .run_evals import main
+from .cli import main
 
 main()
