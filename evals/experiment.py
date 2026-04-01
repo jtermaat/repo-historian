@@ -7,6 +7,8 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict
 from pathlib import Path
 
+from repo_historian.run import _next_run_prefix
+
 from .evaluators import build_narrative_evaluators, build_step_evaluators
 from .pipeline import run_pipeline
 from .types import EvalConfig, ReferenceExpectations, TargetOutput
@@ -241,16 +243,7 @@ def run_experiment(dataset_def: dict, config: EvalConfig) -> None:
 
     out_dir = Path("output")
     out_dir.mkdir(exist_ok=True)
-
-    # Find next run increment
-    existing = sorted(out_dir.glob("eval-run-*"))
-    run_nums = []
-    for p in existing:
-        part = p.stem.split("eval-run-")[1].split("_")[0]
-        if part.isdigit():
-            run_nums.append(int(part))
-    run_id = max(run_nums, default=0) + 1
-    run_prefix = f"eval-run-{run_id}"
+    run_prefix = _next_run_prefix(out_dir, "eval")
 
     def target(inputs: dict) -> dict:
         raw_data, narrative, slug = run_pipeline(inputs["repo_urls"], name=name, style=config.style)

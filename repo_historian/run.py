@@ -21,6 +21,18 @@ from repo_historian.config import (
 )
 
 
+def _next_run_prefix(out_dir: Path, slug: str) -> str:
+    """Return an auto-incremented prefix like '{slug}-run-3'."""
+    existing = sorted(out_dir.glob(f"{slug}-run-*"))
+    run_nums: list[int] = []
+    for p in existing:
+        # Extract the number after '{slug}-run-'
+        part = p.stem.split(f"{slug}-run-")[1].split("_")[0]
+        if part.isdigit():
+            run_nums.append(int(part))
+    return f"{slug}-run-{max(run_nums, default=0) + 1}"
+
+
 def _slugify(repo_url: str) -> str:
     """Convert 'https://github.com/owner/repo' → 'owner_repo'."""
     match = re.match(r"https?://github\.com/([^/]+)/([^/]+?)(?:\.git)?/?$", repo_url)
@@ -74,9 +86,10 @@ def _run_single_repo(args: argparse.Namespace, github_token: str) -> None:
 
     out_dir = Path("output")
     out_dir.mkdir(exist_ok=True)
+    prefix = _next_run_prefix(out_dir, slug)
 
-    narrative_path = out_dir / f"{slug}_narrative.md"
-    raw_path = out_dir / f"{slug}_raw.json"
+    narrative_path = out_dir / f"{prefix}_narrative.md"
+    raw_path = out_dir / f"{prefix}_raw.json"
 
     narrative_path.write_text(result["narrative"], encoding="utf-8")
 
@@ -130,9 +143,10 @@ def _run_multi_repo(args: argparse.Namespace, github_token: str) -> None:
 
     out_dir = Path("output")
     out_dir.mkdir(exist_ok=True)
+    prefix = _next_run_prefix(out_dir, slug)
 
-    narrative_path = out_dir / f"{slug}_narrative.md"
-    raw_path = out_dir / f"{slug}_raw.json"
+    narrative_path = out_dir / f"{prefix}_narrative.md"
+    raw_path = out_dir / f"{prefix}_raw.json"
 
     narrative_path.write_text(result["narrative"], encoding="utf-8")
 
