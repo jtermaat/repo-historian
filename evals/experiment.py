@@ -115,7 +115,6 @@ def _narrative_eval_kwargs(name: str, output: TargetOutput, ref: ReferenceExpect
             context=raw_json,
             reference_outputs=ref.expected_narrative_themes,
         ),
-        "conciseness": dict(inputs=NARRATIVE_TASK, outputs=narrative),
         "correctness": dict(inputs=NARRATIVE_TASK, outputs=narrative, reference_outputs=raw_json),
         "insight_preservation": dict(
             inputs=raw_json,

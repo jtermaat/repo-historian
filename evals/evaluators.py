@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from openevals.llm import create_llm_as_judge
-from openevals.prompts import CONCISENESS_PROMPT, CORRECTNESS_PROMPT, HALLUCINATION_PROMPT
+from openevals.prompts import CORRECTNESS_PROMPT, HALLUCINATION_PROMPT
 
 INSIGHT_PRESERVATION_PROMPT = """\
 You are evaluating whether a narrative history of a software project preserves \
@@ -156,7 +156,6 @@ no cross-repo insight."""
 
 NARRATIVE_EVALUATOR_PROMPTS: dict[str, str] = {
     "hallucination": HALLUCINATION_PROMPT,
-    "conciseness": CONCISENESS_PROMPT,
     "correctness": CORRECTNESS_PROMPT,
     "insight_preservation": INSIGHT_PRESERVATION_PROMPT,
     "completeness": COMPLETENESS_PROMPT,
