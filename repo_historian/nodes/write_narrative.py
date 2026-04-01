@@ -50,7 +50,8 @@ def _build_system_prompt(*, is_multi_repo: bool, style: str | None) -> str:
     base = (
         "You are a software historian. Write a narrative history of "
         f"{subject}, based on the diff analyses provided as JSON. "
-        "Write in past tense. Include an introduction and a conclusion. "
+        "Include an introduction and a conclusion. "
+        "Mention and explain any interesting technical concepts you encounter. "
         f"Target length: {MIN_NARRATIVE_WORDS}-{MAX_NARRATIVE_WORDS} words. "
         "Cite changes inline using Markdown links in the format "
         "[[from..to]](compare_url)."

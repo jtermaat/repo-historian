@@ -27,5 +27,6 @@ quote-style = "double"
 
 [dependency-groups]
 dev = [
+    "openevals>=0.1.3",
     "ruff>=0.15.6",
 ]

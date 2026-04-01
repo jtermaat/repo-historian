@@ -1,0 +1,108 @@
+{
+  "name": "langchain-langgraph",
+  "description": "LangChain + LangGraph ecosystem evaluation dataset",
+  "examples": [
+    {
+      "inputs": {
+        "repo_urls": [
+          "https://github.com/langchain-ai/langchain",
+          "https://github.com/langchain-ai/langgraph"
+        ]
+      },
+      "reference_outputs": {
+        "expected_inflection_points": [
+          {
+            "description": "LangChain initial commit and early monolithic library phase",
+            "approx_date": "2022-10-24",
+            "repo": "langchain",
+            "why_important": "Establishes the original single-package design that everything else reacts against"
+          },
+          {
+            "description": "Introduction of the Runnable protocol (PR #7800), the foundation of LCEL",
+            "approx_date": "2023-07-26",
+            "repo": "langchain",
+            "why_important": "The Runnable abstraction enabled composable, chainable operations and became the core interface for all LangChain components. This is the architectural seed for LCEL."
+          },
+          {
+            "description": "LangGraph initial commit — a separate project for stateful graph workflows",
+            "approx_date": "2023-08-09",
+            "repo": "langgraph",
+            "why_important": "LangGraph was created as a distinct project rather than being built into LangChain, signaling a design philosophy of composable, separate tools"
+          },
+          {
+            "description": "LangGraph adopts Pregel as its execution engine",
+            "approx_date": "2023-10-22",
+            "repo": "langgraph",
+            "why_important": "Pregel is a pub/sub channel-based execution model (Channels, Nodes, Topics). This was a fundamental architectural choice — graph execution became message-passing over channels rather than simple function composition. This is one of the most technically interesting decisions in the ecosystem."
+          },
+          {
+            "description": "langchain-core extracted into a separate package",
+            "approx_date": "2023-11-20",
+            "repo": "langchain",
+            "why_important": "Major dependency inversion: core abstractions (BaseLanguageModel, Runnable, etc.) split out so that integrations could depend on the thin core without pulling in all of langchain. This is a textbook example of managing dependency growth in a fast-moving ecosystem."
+          },
+          {
+            "description": "StateGraph and MessageGraph introduced in LangGraph",
+            "approx_date": "2024-01-12",
+            "repo": "langgraph",
+            "why_important": "High-level builder APIs wrapping Pregel. StateGraph became the primary user-facing API. MessageGraph was later deprecated, showing the ecosystem converging on state-based rather than message-based abstractions."
+          },
+          {
+            "description": "Checkpointing and interrupt mechanisms formalized in LangGraph",
+            "approx_date": "2024-01-15",
+            "repo": "langgraph",
+            "why_important": "State persistence and human-in-the-loop patterns became first-class features, differentiating LangGraph from simple DAG runners"
+          },
+          {
+            "description": "LangChain v0.2.0 — major restructuring and community package split",
+            "approx_date": "2024-05-17",
+            "repo": "langchain",
+            "why_important": "Massive namespace cleanup. Community integrations split into langchain-community. The main langchain package narrowed its scope. This completed the first phase of the monolith-to-ecosystem transition."
+          },
+          {
+            "description": "LangChain v0.3.0 — Pydantic v2 migration",
+            "approx_date": "2024-09-13",
+            "repo": "langchain",
+            "why_important": "Full migration to Pydantic v2 — a breaking change that touched nearly every model and validator in the codebase. Major infrastructure modernization."
+          },
+          {
+            "description": "LangGraph v1.0.0 release",
+            "approx_date": "2025-10-17",
+            "repo": "langgraph",
+            "why_important": "Production-ready stable API milestone for the graph execution framework"
+          },
+          {
+            "description": "LangChain core v1.0.0 and langchain_v1 release — agentic framework",
+            "approx_date": "2025-10-17",
+            "repo": "langchain",
+            "why_important": "v1 was a re-architecture focused on agent-first design patterns, tool calling, and a simplified API surface. Released same day as LangGraph v1, showing coordinated ecosystem maturity."
+          },
+          {
+            "description": "langchain-community moved to separate repository",
+            "approx_date": "2025-04-29",
+            "repo": "langchain",
+            "why_important": "Completed the physical separation of community integrations from the monorepo, reducing maintenance burden and dependency sprawl"
+          }
+        ],
+        "expected_narrative_themes": [
+          "The evolution from a monolithic Python package to a modular ecosystem of packages (langchain, langchain-core, langchain-community, langgraph, langgraph-prebuilt)",
+          "Dependency inversion: how extracting langchain-core allowed the ecosystem to scale without circular dependencies",
+          "The Pregel execution engine in LangGraph — a pub/sub channel-based architecture for graph execution, not just simple function chaining",
+          "The convergence on StateGraph over MessageGraph, reflecting a shift from message-passing to state-management abstractions",
+          "LCEL and the Runnable protocol as the unifying interface across the ecosystem",
+          "The coordinated v1.0.0 releases of both LangChain and LangGraph on the same day, signaling ecosystem maturity",
+          "How LangChain's package splits (core, community, text-splitters) mirror a common pattern in fast-growing open-source projects managing dependency complexity",
+          "The progression from simple chains to agentic workflows as the primary use case"
+        ],
+        "expected_cross_repo_connections": [
+          "LangGraph depends on langchain-core for types and interfaces, but its Pregel engine is independent — the dependency is narrow by design",
+          "The langchain-core split (Nov 2023) happened shortly after LangGraph's creation (Aug 2023), suggesting the need for a thin core was partly driven by wanting clean cross-project dependencies",
+          "Both projects released v1.0.0 on the same day (Oct 17, 2025), showing coordinated maturity milestones",
+          "LangGraph's StateGraph uses langchain-core's Runnable interface, making the two projects composable at the API level"
+        ],
+        "analysis_quality_expectations": "Each diff analysis should surface specific technical decisions and their motivations, not just describe what files changed. For example, the Pregel adoption should explain the pub/sub channel model; the core split should discuss dependency inversion; the v0.2 restructuring should explain namespace cleanup rationale.",
+        "narrative_quality_expectations": "The narrative should read as a coherent story of an ecosystem evolving from monolith to modular architecture, with specific technical depth on the most interesting decisions (Pregel, core split, LCEL, coordinated v1 releases). Generic summaries like 'the project grew and added features' are insufficient."
+      }
+    }
+  ]
+}
