@@ -47,6 +47,7 @@ class EvalConfig:
     judge_model: str
     eval_scope: str  # "all" | "narrative" | "steps"
     style: str | None = None
+    experiment_prefix: str = "repo-historian"
 
 
 @dataclass

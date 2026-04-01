@@ -263,7 +263,7 @@ def run_experiment(dataset_def: dict, config: EvalConfig) -> None:
         target,
         data=name,
         evaluators=evaluators,
-        experiment_prefix="repo-historian",
+        experiment_prefix=config.experiment_prefix,
         description=f"repo-historian eval: {name}",
         metadata={
             "judge_model": config.judge_model,

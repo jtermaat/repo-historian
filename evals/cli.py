@@ -63,6 +63,11 @@ def main(argv: list[str] | None = None) -> None:
         default="all",
         help="Which evals to run (default: all)",
     )
+    parser.add_argument(
+        "--experiment-prefix",
+        default="repo-historian",
+        help="LangSmith experiment prefix (default: repo-historian)",
+    )
     args = parser.parse_args(argv)
 
     if args.repos:
@@ -79,6 +84,7 @@ def main(argv: list[str] | None = None) -> None:
         judge_model=args.judge_model,
         eval_scope=args.eval,
         style=args.style,
+        experiment_prefix=args.experiment_prefix,
     )
 
     from .experiment import run_experiment
