@@ -35,11 +35,11 @@ def run_single_repo(state: PerRepoInput, config: RunnableConfig) -> dict[str, An
         repo_metadata=result["repo_metadata"],
         all_commits=result["all_commits"],
         diff_pairs=result["diff_pairs"],
-        diff_analyses=result["diff_analyses"],
+        diff_analyses=result["selected_analyses"],
     )
 
     logger.info(
-        "Completed per-repo pipeline for %s: %d analyses",
+        "Completed per-repo pipeline for %s: %d analyses selected",
         repo_url,
         len(repo_result.diff_analyses),
     )

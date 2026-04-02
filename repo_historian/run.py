@@ -95,7 +95,7 @@ def _run_single_repo(args: argparse.Namespace, github_token: str) -> None:
 
     raw_data = {
         "repo_metadata": asdict(result["repo_metadata"]),
-        "diff_analyses": [asdict(a) for a in result["diff_analyses"]],
+        "diff_analyses": [asdict(a) for a in result["selected_analyses"]],
     }
     raw_path.write_text(json.dumps(raw_data, indent=2, default=str), encoding="utf-8")
 

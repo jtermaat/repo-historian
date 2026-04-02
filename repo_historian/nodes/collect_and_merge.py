@@ -22,7 +22,7 @@ def collect_and_merge(state: MultiRepoGraphState, config: RunnableConfig) -> dic
 
     for r in repo_results:
         print(f"\n  {r.repo_metadata.full_name}:")
-        print(f"    {len(r.diff_analyses)} diff ranges analyzed")
+        print(f"    {len(r.diff_analyses)} diff analyses (post-selection)")
         for dp in r.diff_pairs:
             print(f"      {dp.from_sha[:8]}..{dp.to_sha[:8]}: {dp.label}")
 

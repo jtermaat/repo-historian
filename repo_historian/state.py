@@ -83,6 +83,7 @@ class GraphState(TypedDict):
     all_commits: list[CommitRecord]
     diff_pairs: list[DiffPair]
     diff_analyses: Annotated[list[DiffAnalysis], operator.add]
+    selected_analyses: list[DiffAnalysis]
     narrative: str
 
 

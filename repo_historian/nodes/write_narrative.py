@@ -84,7 +84,7 @@ def write_narrative(state: GraphState, config: RunnableConfig) -> dict[str, Any]
     """Single-repo narrative: one LLM call over all diff analyses."""
     logger.info("Generating narrative (single LLM call)")
     meta = state["repo_metadata"]
-    analyses = state["diff_analyses"]
+    analyses = state["selected_analyses"]
 
     style = config.get("configurable", {}).get("style")
     system_prompt = _build_system_prompt(is_multi_repo=False, style=style)

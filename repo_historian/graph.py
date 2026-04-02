@@ -10,6 +10,7 @@ from repo_historian.nodes import (
     analyze_diff,
     fetch_commit_history,
     fetch_repo_metadata,
+    select_analyses,
     triage_commits,
     write_narrative,
 )
@@ -66,13 +67,15 @@ def build_graph() -> StateGraph:
     graph.add_node("fetch_commit_history", fetch_commit_history, retry=retry)
     graph.add_node("triage_commits", triage_commits, retry=retry)
     graph.add_node("analyze_diff", analyze_diff, retry=retry)
+    graph.add_node("select_analyses", select_analyses, retry=retry)
     graph.add_node("write_narrative", write_narrative, retry=retry)
 
     graph.add_edge(START, "fetch_repo_metadata")
     graph.add_edge("fetch_repo_metadata", "fetch_commit_history")
     graph.add_edge("fetch_commit_history", "triage_commits")
     graph.add_conditional_edges("triage_commits", _fan_out_analyses, ["analyze_diff"])
-    graph.add_edge("analyze_diff", "write_narrative")
+    graph.add_edge("analyze_diff", "select_analyses")
+    graph.add_edge("select_analyses", "write_narrative")
     graph.add_edge("write_narrative", END)
 
     return graph.compile()
@@ -91,11 +94,13 @@ def build_per_repo_graph():
     graph.add_node("fetch_commit_history", fetch_commit_history, retry=retry)
     graph.add_node("triage_commits", triage_commits, retry=retry)
     graph.add_node("analyze_diff", analyze_diff, retry=retry)
+    graph.add_node("select_analyses", select_analyses, retry=retry)
 
     graph.add_edge(START, "fetch_repo_metadata")
     graph.add_edge("fetch_repo_metadata", "fetch_commit_history")
     graph.add_edge("fetch_commit_history", "triage_commits")
     graph.add_conditional_edges("triage_commits", _fan_out_analyses, ["analyze_diff"])
-    graph.add_edge("analyze_diff", END)
+    graph.add_edge("analyze_diff", "select_analyses")
+    graph.add_edge("select_analyses", END)
 
     return graph.compile()

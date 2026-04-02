@@ -13,6 +13,9 @@ MAX_FILES_PER_DIFF: int = 15
 MAX_PATCH_CHARS_PER_FILE: int = 2500
 MAX_DIFF_CHARS_TOTAL: int = 14000
 
+# Analysis selection — caps
+MAX_SELECTED_ANALYSES: int = 10
+
 # Narrative synthesis
 MIN_NARRATIVE_WORDS: int = 1200
 MAX_NARRATIVE_WORDS: int = 2500
