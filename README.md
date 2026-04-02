@@ -13,13 +13,14 @@ Supports single-repo and multi-repo modes, and works with Claude, GPT, and Gemin
 
 ```
 fetch metadata → fetch commits → triage (LLM picks inflection points)
-→ analyze diffs (fan-out, parallel) → write narrative
+→ analyze diffs (fan-out, parallel) → prune (select representative diffs)
+→ write narrative
 ```
 
 ### Multi-repo
 
 ```
-fan out per-repo pipelines (fetch → triage → analyze, in parallel)
+fan out per-repo pipelines (fetch → triage → analyze → prune, in parallel)
 → collect & merge analyses → write cross-repo narrative
 ```
 
