@@ -9,6 +9,7 @@ from langchain_core.runnables import RunnableConfig
 from langgraph.types import default_retry_on
 
 from repo_historian.config import (
+    FALLBACK_MODEL_NAME,
     LLM_TEMPERATURE,
     MAX_COMPLETION_TOKENS,
     MODEL_NAME,
@@ -65,6 +66,36 @@ def build_llm() -> BaseChatModel:
 
         return ChatGoogleGenerativeAI(
             model=MODEL_NAME,
+            temperature=LLM_TEMPERATURE,
+            max_output_tokens=MAX_COMPLETION_TOKENS,
+        )
+    raise ValueError(f"Unsupported provider: {provider}")
+
+
+def build_fallback_llm() -> BaseChatModel:
+    """Build a fallback LLM for retries when the primary model fails."""
+    provider = detect_provider(FALLBACK_MODEL_NAME)
+    if provider == "anthropic":
+        from langchain_anthropic import ChatAnthropic
+
+        return ChatAnthropic(
+            model=FALLBACK_MODEL_NAME,
+            temperature=LLM_TEMPERATURE,
+            max_tokens=MAX_COMPLETION_TOKENS,
+        )
+    elif provider == "openai":
+        from langchain_openai import ChatOpenAI
+
+        return ChatOpenAI(
+            model=FALLBACK_MODEL_NAME,
+            temperature=LLM_TEMPERATURE,
+            max_tokens=MAX_COMPLETION_TOKENS,
+        )
+    elif provider == "google":
+        from langchain_google_genai import ChatGoogleGenerativeAI
+
+        return ChatGoogleGenerativeAI(
+            model=FALLBACK_MODEL_NAME,
             temperature=LLM_TEMPERATURE,
             max_output_tokens=MAX_COMPLETION_TOKENS,
         )

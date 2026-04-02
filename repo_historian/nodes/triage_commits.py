@@ -15,7 +15,7 @@ from repo_historian.config import (
     TRIAGE_MARGIN,
     TRIAGE_WINDOW_SIZE,
 )
-from repo_historian.nodes._helpers import build_llm
+from repo_historian.nodes._helpers import build_fallback_llm, build_llm
 from repo_historian.state import DiffPair, GraphState, InflectionPoint
 
 
@@ -37,8 +37,10 @@ def triage_commits(state: GraphState, config: RunnableConfig) -> dict[str, Any]:
         print("Only one commit found; nothing to analyze.")
         return {"diff_pairs": []}
 
+    from openai import LengthFinishReasonError
+
     llm = build_llm()
-    structured_llm = llm.with_structured_output(_TriageResponse)
+    fallback = None
     all_inflection_points: list[InflectionPoint] = []
 
     num_windows = 0
@@ -59,38 +61,53 @@ def triage_commits(state: GraphState, config: RunnableConfig) -> dict[str, Any]:
         eval_first = window[eval_start].sha[:8]
         eval_last = window[eval_end - 1].sha[:8]
 
-        result: _TriageResponse = structured_llm.invoke(
-            [
-                SystemMessage(
-                    content=(
-                        "You are a commit triage assistant building a narrative history of a "
-                        "software project. Given a chronological list of commits, identify which "
-                        "commits are INFLECTION POINTS — moments where the project meaningfully "
-                        "changed direction, reached a milestone, or shifted its character.\n\n"
-                        "Guidelines:\n"
-                        f"- Aim for {MIN_INFLECTION_POINTS}–{MAX_INFLECTION_POINTS} "
-                        "inflection points\n"
-                        f"- ONLY select commits between {eval_first} and {eval_last} "
-                        f"(inclusive) — the rest are context only\n"
-                        "- An inflection point marks: a new feature area, architecture shift, "
-                        "major refactor, release milestone, or significant change in project "
-                        "direction\n"
-                        "- The first and last commits of the full history are included "
-                        "automatically — do not include them unless they are genuinely "
-                        "significant turning points on their own merit\n"
-                        "- Skip routine maintenance, typo fixes, dependency bumps\n"
-                        "- Use the 8-char SHA prefixes shown\n"
-                        "- Label each with a short description of WHY it is a turning point"
-                    )
-                ),
-                HumanMessage(
-                    content=(
-                        f"Window {num_windows} — identify inflection points "
-                        f"(only between {eval_first} and {eval_last}):\n{commit_lines}"
-                    )
-                ),
-            ]
-        )
+        messages = [
+            SystemMessage(
+                content=(
+                    "You are a commit triage assistant building a narrative "
+                    "history of a software project. Given a chronological list "
+                    "of commits, identify which commits are INFLECTION POINTS "
+                    "— moments where the project meaningfully changed "
+                    "direction, reached a milestone, or shifted its "
+                    "character.\n\n"
+                    "Guidelines:\n"
+                    f"- Aim for {MIN_INFLECTION_POINTS}–"
+                    f"{MAX_INFLECTION_POINTS} inflection points\n"
+                    f"- ONLY select commits between {eval_first} and "
+                    f"{eval_last} (inclusive) — the rest are context only\n"
+                    "- An inflection point marks: a new feature area, "
+                    "architecture shift, major refactor, release milestone, "
+                    "or significant change in project direction\n"
+                    "- The first and last commits of the full history are "
+                    "included automatically — do not include them unless they "
+                    "are genuinely significant turning points on their own "
+                    "merit\n"
+                    "- Skip routine maintenance, typo fixes, dependency "
+                    "bumps\n"
+                    "- Use the 8-char SHA prefixes shown\n"
+                    "- Label each with a short description of WHY it is a "
+                    "turning point"
+                )
+            ),
+            HumanMessage(
+                content=(
+                    f"Window {num_windows} — identify inflection points "
+                    f"(only between {eval_first} and "
+                    f"{eval_last}):\n{commit_lines}"
+                )
+            ),
+        ]
+
+        try:
+            result: _TriageResponse = llm.with_structured_output(_TriageResponse).invoke(messages)
+        except LengthFinishReasonError:
+            logger.warning(
+                "Primary model hit token limit for triage window %d; retrying with fallback",
+                num_windows,
+            )
+            if fallback is None:
+                fallback = build_fallback_llm()
+            result = fallback.with_structured_output(_TriageResponse).invoke(messages)
 
         for item in result.inflection_points:
             if item.sha in evaluable_shas:
