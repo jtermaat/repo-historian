@@ -31,8 +31,8 @@ MODEL_NAME: str = "gpt-5.4-mini"
 # MODEL_NAME: str = "gemini-3.1-flash-lite-preview"
 
 LLM_TEMPERATURE: float = 0
-MAX_COMPLETION_TOKENS: int = 65_536
-REASONING_EFFORT: str = "low"
+MAX_COMPLETION_TOKENS: int = 16_384
+REASONING_EFFORT: str = "none"
 
 # Narrative model — separate from the data-gathering model above
 # NARRATIVE_MODEL_NAME: str = "claude-opus-4-6"
