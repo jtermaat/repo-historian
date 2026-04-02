@@ -6,6 +6,9 @@ Supports single-repo and multi-repo modes, and works with Claude, GPT, and Gemin
 
 ## Pipeline
 
+<img width="1078" height="756" alt="Screenshot 2026-04-02 at 11 21 07 AM" src="https://github.com/user-attachments/assets/ca59dc74-e740-4e19-a3d0-21d65d7479df" />
+
+
 ### Single repo
 
 ```
